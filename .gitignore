@@ -1,0 +1,140 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+open_deep_research/.langgraph_api
+
+# PyInstaller
+# Usually these files are written by a CI, but they should be ignored
+# through normal development.
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Mypy cache
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Cython debug symbols
+cython_debug/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Sphinx documentation
+docs/_build/
+# Or if you use mkdocs:
+# site/
+
+# IDE configuration files
+.idea/  # PyCharm
+.vscode/  # Visual Studio Code
+*.sublime-project
+*.sublime-workspace
+.project # Eclipse
+.pydevproject # Eclipse PyDev
+nbproject/ # NetBeans
+
+# Vim
+*[._]sw[a-p]
+*.un~
+Session.vim
+
+# Operating System files
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+# Linux
+*~
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.patch
+*.diff
+
+# Local databases
+*.sqlite3
+*.db
+*.db-journal
+
+# Secrets and credentials
+# .env is often used for secrets and is listed in "Virtual environments"
+*.pem
+*.key
+credentials.*
+secrets.*
+
+# LangGraph specific (if any)
+# Add any LangGraph specific cache or build directories here if they exist
+# e.g. .langgraph_cache/
+
+# Other common ignores
+instance/ # Flask instance folder
+node_modules/ # If using JavaScript tools
