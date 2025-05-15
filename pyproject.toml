@@ -33,6 +33,8 @@ dependencies = [
     "pytest",
     "httpx>=0.24.0",
     "markdownify>=0.11.6",
+    "pandas>=2.2.3",
+    "streamlit>=1.45.0",
 ]
 
 [project.optional-dependencies]

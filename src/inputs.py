@@ -4,6 +4,8 @@ Por favor, inclua informações relevantes sobre bem como análise comparativa c
 - Quantidade de vagas e concorrência para residência médica nas especialidades indicadas.
 - Instituições de referência e programas de destaque para a residência médica.
 - Perspectivas de mercado de trabalho para médicos especialistas nas áreas escolhidas, incluindo remuneração média.
-- Requisitos para a aprovação na residência, como provas, entrevistas e currículo, considerando o ano de realização da prova {ano}.
-- Com foco na região de {cidade}, {estado} e considerando o contexto para estudantes da {faculdade}.
+- O estudante deseja fazer residencia em: {estado}
+- Considere o contexto para estudantes da {faculdade}.
+- O guia deve ser escrito em português e deve ser claro e conciso, com informações práticas e úteis para os estudantes de medicina.
+- O guia deve ser construido a fim de amenizar as preocupações e dúvidas do estudante em relação à sua carreira médica: {preocupacoes}.
 """
