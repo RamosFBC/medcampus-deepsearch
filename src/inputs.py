@@ -6,6 +6,7 @@ Por favor, inclua informações relevantes sobre bem como análise comparativa c
 - Perspectivas de mercado de trabalho para médicos especialistas nas áreas escolhidas, incluindo remuneração média.
 - O estudante deseja fazer residencia em: {estado}
 - Considere o contexto para estudantes da {faculdade}.
+- Considere o contexto do periodo da faculdade em que o estudante se encontra: {ciclo}
 - O guia deve ser escrito em português e deve ser claro e conciso, com informações práticas e úteis para os estudantes de medicina.
 - O guia deve ser construido a fim de amenizar as preocupações e dúvidas do estudante em relação à sua carreira médica: {preocupacoes}.
 """

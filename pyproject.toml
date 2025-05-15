@@ -35,6 +35,10 @@ dependencies = [
     "markdownify>=0.11.6",
     "pandas>=2.2.3",
     "streamlit>=1.45.0",
+    "weasyprint>=65.1",
+    "markdown>=3.8",
+    "pdfkit>=1.0.0",
+    "fpdf2>=2.8.3",
 ]
 
 [project.optional-dependencies]
