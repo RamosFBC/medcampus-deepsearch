@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import re
 from fpdf import FPDF
+import unicodedata
 
 # Current directory
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -34,13 +35,24 @@ MD_BLOCKQUOTE = re.compile(r"^> (.+)$")
 
 class PDF(FPDF):
     def __init__(self, title="Document"):
+        # Initialize with default settings
         super().__init__()
+        
+        # Set document information
         self.doc_title = title
         self.in_code_block = False
         self.link_blue = (0, 0, 255)  # RGB for links
+        
+        # Try to set encoding if this version of fpdf supports it
+        try:
+            self.set_doc_option('core_fonts_encoding', 'latin-1')
+        except (AttributeError, TypeError):
+            # Older versions of fpdf might not have this method
+            pass
 
     def header(self):
         self.set_font("helvetica", "B", 12)
+        # Encode the title to latin-1 to ensure proper display
         self.cell(
             0,
             10,
@@ -53,9 +65,13 @@ class PDF(FPDF):
     def footer(self):
         self.set_y(-15)
         self.set_font("helvetica", "I", 8)
-        self.cell(0, 10, f"Página {self.page_no()}", align="C")
+        # Encode the footer text to latin-1
+        page_text = f"Página {self.page_no()}"
+        date_text = f"Gerado em: {datetime.now().strftime('%d/%m/%Y')}"
+        
+        self.cell(0, 10, page_text, align="C")
         self.ln(5)
-        self.cell(0, 5, f"Gerado em: {datetime.now().strftime('%d/%m/%Y')}", align="C")
+        self.cell(0, 5, date_text, align="C")
 
     def add_heading(self, level, text):
         """Add a heading with appropriate styling based on level"""
@@ -514,8 +530,36 @@ def create_pdf_from_markdown(markdown_file_path, output_dir=None):
     for char, replacement in unicode_replacements.items():
         text = text.replace(char, replacement)
 
-    # Handle other potential problematic characters
-    text = "".join(c if ord(c) < 128 or c.isspace() else "?" for c in text)
+    # Replace problematic characters but preserve Portuguese accented chars
+    pt_chars = {
+        'á': 'á', 'à': 'à', 'ã': 'ã', 'â': 'â',
+        'é': 'é', 'ê': 'ê', 
+        'í': 'í', 
+        'ó': 'ó', 'ô': 'ô', 'õ': 'õ',
+        'ú': 'ú', 'ü': 'ü',
+        'ç': 'ç',
+        'Á': 'Á', 'À': 'À', 'Ã': 'Ã', 'Â': 'Â',
+        'É': 'É', 'Ê': 'Ê',
+        'Í': 'Í',
+        'Ó': 'Ó', 'Ô': 'Ô', 'Õ': 'Õ',
+        'Ú': 'Ú', 'Ü': 'Ü',
+        'Ç': 'Ç'
+    }
+    
+    # First replace non-Portuguese special characters
+    for char, replacement in unicode_replacements.items():
+        text = text.replace(char, replacement)
+    
+    # Create a function that preserves Portuguese-specific characters
+    def clean_text(c):
+        if c in pt_chars:
+            return c  # Keep Portuguese characters as is
+        if ord(c) < 128 or c.isspace():
+            return c  # Keep ASCII and spaces
+        return '?'  # Replace other characters
+        
+    # Apply the cleaning function
+    text = ''.join(clean_text(c) for c in text)
 
     # Create PDF with proper dimensions
     pdf = PDF(title=title)
@@ -602,6 +646,50 @@ def create_pdf_from_markdown(markdown_file_path, output_dir=None):
     # Save PDF
     pdf.output(output_path)
     print(f"PDF successfully generated: {output_path}")
+    return output_path
+
+
+# Wrapper function to match the import in app.py
+def generate_pdf_from_markdown(markdown_content, title=None, output_dir=None):
+    """
+    Generate a PDF from markdown content string.
+
+    Args:
+        markdown_content (str): The markdown content as a string
+        title (str, optional): The title for the PDF. If None, will be extracted from markdown
+        output_dir (str, optional): Directory to save the PDF. Defaults to PDF_DIR.
+
+    Returns:
+        str: Path to the generated PDF file
+    """
+    # Create a temporary markdown file
+    import tempfile
+
+    # Generate a filename based on the title or use a timestamp
+    if title:
+        filename = f"{title.replace(' ', '_')}.md"
+    else:
+        # Extract title from markdown content (first heading)
+        title_match = re.search(r"^# (.*?)$", markdown_content, re.MULTILINE)
+        if title_match:
+            title = title_match.group(1)
+            filename = f"{title.replace(' ', '_')}.md"
+        else:
+            # Use timestamp if no title found
+            filename = f"report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+
+    # Determine the examples directory
+    examples_dir = os.path.join(os.path.dirname(CURRENT_DIR), "examples")
+    os.makedirs(examples_dir, exist_ok=True)
+
+    # Save markdown content to the examples directory
+    markdown_file_path = os.path.join(examples_dir, filename)
+    with open(markdown_file_path, "w", encoding="utf-8") as f:
+        f.write(markdown_content)
+
+    # Generate the PDF from the markdown file
+    output_path = create_pdf_from_markdown(markdown_file_path, output_dir)
+
     return output_path
 
 
