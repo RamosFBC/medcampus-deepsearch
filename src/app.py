@@ -16,6 +16,19 @@ load_dotenv()
 agent = graph
 input_prompt = input_prompt
 
+# Initialize session state variables
+if "result" not in st.session_state:
+    st.session_state.result = None
+if "report_generated" not in st.session_state:
+    st.session_state.report_generated = False
+if "report_info" not in st.session_state:
+    st.session_state.report_info = {
+        "especialidade": "",
+        "local": "",
+        "residents_number": 0,
+        "growth": 0.0,  # Initialize as float
+    }
+
 
 async def run_graph(initial_input):
     """Runs the graph asynchronously and prints the result."""
@@ -71,13 +84,11 @@ with st.form(key="input_form"):
     especialidade = st.selectbox(
         "Qual especialidade você pensa em fazer?", options=specialties
     )
-    local = st.selectbox("Qual local você pensa em fazer residência?", options=estados)
+    local = st.selectbox(
+        "Em qual estado você pensa em fazer residência?", options=estados
+    )
     preocupacoes = st.text_area(
         "Quais são suas preocupações ou dúvidas em relação à sua carreira médica?"
-    )
-    # Create a text input for the user to enter their prompt
-    user_input = st.text_area(
-        "Digite sua pergunta ou solicitação:", value=input_prompt, height=200
     )
 
     specialty_data = residents_number_df[
@@ -86,7 +97,6 @@ with st.form(key="input_form"):
     specialty_growth_data = residents_growth_df[
         residents_growth_df["Especialidade"] == especialidade
     ]
-    st.write(specialty_data)
 
     residents_number = specialty_data["Medicos_residentes_total_N"].values[0]
 
@@ -98,7 +108,7 @@ with st.form(key="input_form"):
             "messages": [
                 {
                     "role": "user",
-                    "content": user_input.format(
+                    "content": input_prompt.format(
                         especialidades=especialidade,
                         estado=local,
                         faculdade=faculdade,
@@ -110,15 +120,26 @@ with st.form(key="input_form"):
         }
         report_title = f"Relatório sobre {especialidade} em {local}"
 
+        # Store report info in session state
+        # Safely get the growth value with proper error handling
+        try:
+            growth_value = (
+                float(specialty_growth_data["crescimento_total"].values[0])
+                if not specialty_growth_data.empty
+                else 0.0
+            )
+        except (ValueError, TypeError, IndexError):
+            growth_value = 0.0
+
+        st.session_state.report_info = {
+            "especialidade": especialidade,
+            "local": local,
+            "residents_number": residents_number,
+            "growth": growth_value,
+        }
+
         # Create a loading spinner with messages
         with st.spinner("Iniciando a geração do relatório..."):
-            # Display some stats first
-            st.write(
-                f"Quantidade de médicos residentes na especialidade {especialidade}: {residents_number}"
-            )
-            st.write(
-                f"Quantidade de médicos residentes na especialidade {especialidade} em crescimento: {specialty_growth_data['crescimento_total'].values[0]}"
-            )
 
             # Create a placeholder for progress messages
             progress_placeholder = st.empty()
@@ -136,12 +157,18 @@ with st.form(key="input_form"):
             # Show each message for a moment to simulate progress
             import time
 
-            for message in loading_messages:
-                progress_placeholder.info(message)
-                time.sleep(10)  # Show each message for half a second
+            # Show loading messages with a more reasonable delay
+            for i, message in enumerate(loading_messages):
+                # If it's the last message, keep it showing longer while the model works
+                if i == len(loading_messages) - 1:
+                    progress_placeholder.info(message)
+                else:
+                    progress_placeholder.info(message)
+                    time.sleep(2)  # Show each message for 2 seconds
 
             # Run the agent asynchronously
-            result = asyncio.run(run_graph(initial_input))
+            st.session_state.result = asyncio.run(run_graph(initial_input))
+            st.session_state.report_generated = True
 
             # Clear the progress messages when done
             progress_placeholder.empty()
@@ -149,35 +176,80 @@ with st.form(key="input_form"):
             # Show success message
             st.success("Relatório gerado com sucesso!")
 
-        # Get the final report content
-        final_report = result["final_report"]
 
-        # Generate a title based on specialty and location
+# Function to reset session state
+def reset_report():
+    st.session_state.result = None
+    st.session_state.report_generated = False
+    st.session_state.report_info = {
+        "especialidade": "",
+        "local": "",
+        "residents_number": 0,
+        "growth": 0.0,  # Ensure this is a float
+    }
+    st.experimental_rerun()
 
-        # Display the report in a nicely formatted container
-        st.markdown("## Relatório Completo")
-        report_container = st.container()
-        with report_container:
-            st.markdown(final_report)
 
-        # Uncomment the PDF generation when ready to enable it
-        # # Generate the PDF from the final report
-        # pdf_path = generate_pdf_from_markdown(final_report, title=report_title)
-        # # Provide a download link for the PDF
-        # with open(pdf_path, "rb") as file:
-        #     btn = st.download_button(
-        #         label="Baixar PDF do Relatório",
-        #         data=file,
-        #         file_name=os.path.basename(pdf_path),
-        #         mime="application/pdf",
-        #     )
-        # st.write(f"Relatório salvo em: {pdf_path}")
+# Outside the form, check if a report has been generated
+if st.session_state.report_generated and st.session_state.result:
+    # Add a button to generate a new report
+    col1, col2 = st.columns([5, 1])
+    with col2:
+        if st.button("Novo Relatório", on_click=reset_report):
+            pass
 
-        # Add a divider before showing the debug input
-        st.divider()
-        st.caption("Detalhes da Consulta:")
-        with st.expander("Ver entrada do sistema"):
-            st.write(initial_input)
+    # Display summary in a card
+    with st.container():
+        st.subheader(
+            f"Resumo: {st.session_state.report_info['especialidade']} em {st.session_state.report_info['local']}"
+        )
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(
+                label=f"Médicos residentes na especialidade",
+                value=f"{st.session_state.report_info['residents_number']}",
+            )
+        with col2:
+            # Handle the growth value safely - convert to float first and handle potential errors
+            try:
+                growth_value = float(st.session_state.report_info["growth"])
+                growth_display = f"{growth_value:.2f}%"
+            except (ValueError, TypeError):
+                growth_display = f"{st.session_state.report_info['growth']}"
+
+            st.metric(
+                label=f"Taxa de crescimento",
+                value=growth_display,
+            )
+
+    # Get the final report content
+    final_report = st.session_state.result["final_report"]
+    report_title = f"Relatório sobre {st.session_state.report_info['especialidade']} em {st.session_state.report_info['local']}"
+
+    # Display the report in a nicely formatted container
+    st.markdown("## Relatório Completo")
+    report_container = st.container()
+    with report_container:
+        st.markdown(final_report)
+
+    # Uncomment the PDF generation when ready to enable it
+    # # Generate the PDF from the final report
+    # pdf_path = generate_pdf_from_markdown(final_report, title=report_title)
+    # # Provide a download link for the PDF
+    # with open(pdf_path, "rb") as file:
+    #     btn = st.download_button(
+    #         label="Baixar PDF do Relatório",
+    #         data=file,
+    #         file_name=os.path.basename(pdf_path),
+    #         mime="application/pdf",
+    #     )
+    # st.write(f"Relatório salvo em: {pdf_path}")
+
+    # Add a divider before showing the debug input
+    st.divider()
+    st.caption("Detalhes da Consulta:")
+    with st.expander("Ver entrada do sistema"):
+        st.write(st.session_state.result.get("messages", []))
 # Display the DataFrames in Streamlit for debugging
 if st.checkbox("Debug Mode"):
     st.subheader("Dados sobre Residentes")
