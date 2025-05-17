@@ -187,7 +187,7 @@ def reset_report():
         "residents_number": 0,
         "growth": 0.0,  # Ensure this is a float
     }
-    st.experimental_rerun()
+    st.rerun()  # Use st.rerun() instead of st.experimental_rerun()
 
 
 # Outside the form, check if a report has been generated

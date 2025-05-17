@@ -265,6 +265,7 @@ Você é um supervisor de pesquisa encarregado de delinear um relatório detalha
     * O topico da ferramenta "enhanced_tabvily_search" deve ser **SEMPRE** 'general' para evitar erros
         * Exemplo de query de pesquisa genérica (adaptar conforme input): "Visão geral da carreira e residência em Cardiologia Pediátrica no Brasil perto de [Cidade/Estado/Faculdade]".
         * Priorize fontes que ofereçam um panorama conciso para embasar o planejamento, incluindo aspectos de mercado e opções de formação.
+        * Mantenha **SEMPRE** as queries to tavily com menos de 300 caracteres
     * ***IMEDIATAMENTE APÓS*** analisar os resultados desta única busca e considerando os detalhes fornecidos pelo usuário (como localização ou faculdade, se mencionados), utilize sua capacidade de raciocínio para definir a estrutura do relatório. O planejamento deve incluir orientação inicial sobre como se preparar para a residência, focando em identificar e pesquisar centros de referência relevantes para o usuário.
     * Use a ferramenta `Sections` para listar as seções do relatório. Cada item da lista deve ser uma string contendo o nome da seção e uma breve descrição do plano de pesquisa para aquela seção.
     * As seções **DEVEM OBRIGATORIAMENTE** cobrir os seguintes tópicos requisitados pelo usuário, adaptados à(s) especialidade(s), informações contextuais e focando em fornecer dados relevantes sobre o mercado atual e preocupações dos estudantes:
@@ -335,6 +336,8 @@ d) **Conclusão da Pesquisa e Síntese:** Considere a pesquisa para esta seção
 * Use tom de vóz informativo e instrutivo, como estivesse guiando o estudante de medicina pelas seções
 
 ### Usar a Ferramenta Section
+
+* Mantenha **SEMPRE** as queries to tavily com menos de 300 caracteres
 
 **SOMENTE** após a pesquisa (máximo 2 buscas) estar concluída e você ter sintetizado a informação disponível, escreva a seção de alta qualidade usando a ferramenta `Section`:
 
