@@ -26,12 +26,13 @@ async def run_graph(initial_input):
     return result
 
 
-data_path = "data/combined_table_cleaned.csv"
+residents_number_path = "data/residents_1_n.csv"
+residents_growth_path = "data/residency_growth_cleaned.csv"
 # Load the CSV file into a DataFrame
-df = pd.read_csv(data_path)
+residents_number_df = pd.read_csv(residents_number_path)
+residents_growth_df = pd.read_csv(residents_growth_path)
 
-# Map all specialties to a list
-specialties = sorted(df["Especialidade"].unique().tolist())
+specialties = sorted(residents_number_df["Especialidade"].unique().tolist())
 estados = [
     "Paraná",
     "São Paulo",
@@ -79,23 +80,18 @@ with st.form(key="input_form"):
         "Digite sua pergunta ou solicitação:", value=input_prompt, height=200
     )
 
-    specialty_data = df[df["Especialidade"] == especialidade]
+    specialty_data = residents_number_df[
+        residents_number_df["Especialidade"] == especialidade
+    ]
+    specialty_growth_data = residents_growth_df[
+        residents_growth_df["Especialidade"] == especialidade
+    ]
     st.write(specialty_data)
 
     residents_number = specialty_data["Medicos_residentes_total_N"].values[0]
 
     # Create a submit button
     if st.form_submit_button(label="Enviar"):
-        # Display the user input
-        st.write("Você digitou:")
-        st.write(user_input)
-
-        # Display the other inputs
-        st.write("Faculdade:", faculdade)
-        st.write("Ciclo:", ciclo)
-        st.write("Especialidade:", especialidade)
-        st.write("Local:", local)
-        st.write("Preocupações:", preocupacoes)
 
         # Prepare the input for the agent
         initial_input = {
@@ -112,25 +108,61 @@ with st.form(key="input_form"):
                 }
             ]
         }
-        # Run the agent asynchronously
-        result = asyncio.run(run_graph(initial_input))
+        report_title = f"Relatório sobre {especialidade} em {local}"
+
+        # Create a loading spinner with messages
+        with st.spinner("Iniciando a geração do relatório..."):
+            # Display some stats first
+            st.write(
+                f"Quantidade de médicos residentes na especialidade {especialidade}: {residents_number}"
+            )
+            st.write(
+                f"Quantidade de médicos residentes na especialidade {especialidade} em crescimento: {specialty_growth_data['crescimento_total'].values[0]}"
+            )
+
+            # Create a placeholder for progress messages
+            progress_placeholder = st.empty()
+
+            # Define loading messages to show while report is being generated
+            loading_messages = [
+                "Analisando dados sobre a especialidade...",
+                "Avaliando cenário de residência médica...",
+                "Processando informações sobre vagas e concorrência...",
+                "Construindo recomendações personalizadas...",
+                "Formatando relatório final...",
+                "Quase pronto...",
+            ]
+
+            # Show each message for a moment to simulate progress
+            import time
+
+            for message in loading_messages:
+                progress_placeholder.info(message)
+                time.sleep(10)  # Show each message for half a second
+
+            # Run the agent asynchronously
+            result = asyncio.run(run_graph(initial_input))
+
+            # Clear the progress messages when done
+            progress_placeholder.empty()
+
+            # Show success message
+            st.success("Relatório gerado com sucesso!")
 
         # Get the final report content
         final_report = result["final_report"]
 
         # Generate a title based on specialty and location
-        report_title = f"Relatório sobre {especialidade} em {local}"
 
+        # Display the report in a nicely formatted container
+        st.markdown("## Relatório Completo")
+        report_container = st.container()
+        with report_container:
+            st.markdown(final_report)
+
+        # Uncomment the PDF generation when ready to enable it
         # # Generate the PDF from the final report
         # pdf_path = generate_pdf_from_markdown(final_report, title=report_title)
-
-        # Display the result
-        st.write("Resultado:")
-        st.write(
-            f"Quantidade de médicos residentes na especialidade {especialidade}: {residents_number}"
-        )
-        st.write(final_report)
-
         # # Provide a download link for the PDF
         # with open(pdf_path, "rb") as file:
         #     btn = st.download_button(
@@ -139,9 +171,17 @@ with st.form(key="input_form"):
         #         file_name=os.path.basename(pdf_path),
         #         mime="application/pdf",
         #     )
-
         # st.write(f"Relatório salvo em: {pdf_path}")
-        st.write(initial_input)
-# Display the DataFrame in Streamlit
-if st.checkbox("debug"):
-    st.dataframe(df)
+
+        # Add a divider before showing the debug input
+        st.divider()
+        st.caption("Detalhes da Consulta:")
+        with st.expander("Ver entrada do sistema"):
+            st.write(initial_input)
+# Display the DataFrames in Streamlit for debugging
+if st.checkbox("Debug Mode"):
+    st.subheader("Dados sobre Residentes")
+    st.dataframe(residents_number_df)
+
+    st.subheader("Dados sobre Crescimento")
+    st.dataframe(residents_growth_df)

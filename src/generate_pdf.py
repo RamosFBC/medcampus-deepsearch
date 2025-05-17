@@ -37,15 +37,15 @@ class PDF(FPDF):
     def __init__(self, title="Document"):
         # Initialize with default settings
         super().__init__()
-        
+
         # Set document information
         self.doc_title = title
         self.in_code_block = False
         self.link_blue = (0, 0, 255)  # RGB for links
-        
+
         # Try to set encoding if this version of fpdf supports it
         try:
-            self.set_doc_option('core_fonts_encoding', 'latin-1')
+            self.set_doc_option("core_fonts_encoding", "latin-1")
         except (AttributeError, TypeError):
             # Older versions of fpdf might not have this method
             pass
@@ -68,7 +68,7 @@ class PDF(FPDF):
         # Encode the footer text to latin-1
         page_text = f"Página {self.page_no()}"
         date_text = f"Gerado em: {datetime.now().strftime('%d/%m/%Y')}"
-        
+
         self.cell(0, 10, page_text, align="C")
         self.ln(5)
         self.cell(0, 5, date_text, align="C")
@@ -532,34 +532,48 @@ def create_pdf_from_markdown(markdown_file_path, output_dir=None):
 
     # Replace problematic characters but preserve Portuguese accented chars
     pt_chars = {
-        'á': 'á', 'à': 'à', 'ã': 'ã', 'â': 'â',
-        'é': 'é', 'ê': 'ê', 
-        'í': 'í', 
-        'ó': 'ó', 'ô': 'ô', 'õ': 'õ',
-        'ú': 'ú', 'ü': 'ü',
-        'ç': 'ç',
-        'Á': 'Á', 'À': 'À', 'Ã': 'Ã', 'Â': 'Â',
-        'É': 'É', 'Ê': 'Ê',
-        'Í': 'Í',
-        'Ó': 'Ó', 'Ô': 'Ô', 'Õ': 'Õ',
-        'Ú': 'Ú', 'Ü': 'Ü',
-        'Ç': 'Ç'
+        "á": "á",
+        "à": "à",
+        "ã": "ã",
+        "â": "â",
+        "é": "é",
+        "ê": "ê",
+        "í": "í",
+        "ó": "ó",
+        "ô": "ô",
+        "õ": "õ",
+        "ú": "ú",
+        "ü": "ü",
+        "ç": "ç",
+        "Á": "Á",
+        "À": "À",
+        "Ã": "Ã",
+        "Â": "Â",
+        "É": "É",
+        "Ê": "Ê",
+        "Í": "Í",
+        "Ó": "Ó",
+        "Ô": "Ô",
+        "Õ": "Õ",
+        "Ú": "Ú",
+        "Ü": "Ü",
+        "Ç": "Ç",
     }
-    
+
     # First replace non-Portuguese special characters
     for char, replacement in unicode_replacements.items():
         text = text.replace(char, replacement)
-    
+
     # Create a function that preserves Portuguese-specific characters
     def clean_text(c):
         if c in pt_chars:
             return c  # Keep Portuguese characters as is
         if ord(c) < 128 or c.isspace():
             return c  # Keep ASCII and spaces
-        return '?'  # Replace other characters
-        
+        return "?"  # Replace other characters
+
     # Apply the cleaning function
-    text = ''.join(clean_text(c) for c in text)
+    text = "".join(clean_text(c) for c in text)
 
     # Create PDF with proper dimensions
     pdf = PDF(title=title)
