@@ -39,6 +39,7 @@ dependencies = [
     "markdown>=3.8",
     "pdfkit>=1.0.0",
     "fpdf2>=2.8.3",
+    "plotly>=6.1.0",
 ]
 
 [project.optional-dependencies]

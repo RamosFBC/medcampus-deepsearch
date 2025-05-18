@@ -1,58 +1,58 @@
 Especialidade,2018,2019,2020,2021,2022,2023,2024,crescimento_total
-Acupuntura,11,10,12,9,11,12,9,"-18,2"
-Alergia e Imunologia,8,12,6,6,5,12,12,"50,0"
-Anestesiologia,983,1.018,1.015,988,1.030,1.055,1.136,"15,6"
-Angiologia,2,2,1,1,2,2,1,"-50,0"
-Cardiologia,605,634,587,577,624,658,691,"14,2"
-Cirurgia Cardiovascular,57 57,69,65,61,65,80,93,"63,2"
-Cirurgia da Mão,60,64,63,60,80 63,57,63,"5,0"
-Cirurgia de Cabeça e Pescoço,53,47,45,37,40,41,29,"-45,3"
-Cirurgia do Aparelho Digestivo,122,128,122,121,127,122,109,"-10,7"
-Cirurgia Geral,1.724,1.700,1.737,1.630,1.355,1.459,1.537,"-10,9"
-Cirurgia Oncológica,94,105,91,89,99 99,94,69,"-26,6"
-Cirurgia Pediátrica,58,63,59,57,62,67,60 60,"3,5"
-Cirurgia Plástica,162,163,157,149,156,167,160,"-1,2"
-Cirurgia Torácica,47,45,44,38 3,46,40 0,36,"-23,4"
-Cirurgia Vascular,210,222,215,195,216,217,192,"-8,6"
-Clínica Médica,2.705,2.863,2.922,2.987,3.102,3.170,3.384,"25,1"
-Coloproctologia,80,85,78,73,79,80,87,"8,8"
-Dermatologia,245,255,245,235,238,256,270,"10,2"
-Endocrinologia e Metabologia,179,187,197,186,205,206,213,"19,0"
-Endoscopia,64,67,74,67,73,74,84,"31,3"
-Gastroenterologia,152,163,162,154,168,169,178,"17,1"
-Genética Médica,15,22,26,26,25,22,27,"80,0"
-Geriatria,132,134,139,149,157,167,174,"31,8"
-Ginecologia e Obstetrícia,1.244,1.291,1.300,1.290,1.342,1.383,1.457,"17,1"
-Hematologia e Hemoterapia,118,121 121,124,125,129,143,158,"33,9"
-Homeopatia,4,4,5 LO,6,3,3,5 LO,"25,0"
-Infectologia,177,175,171,194,195,196,208,"17,5"
-Mastologia,110,120,113,108,104,97,108,"-1,8"
-Medicina de Emergência,80,88,141,161,176,202,233,"191,3"
+Acupuntura,11,10,12,9,11,12,9,-18.2
+Alergia e Imunologia,8,12,6,6,5,12,12,50.0
+Anestesiologia,983,1018,1015,988,1030,1055,1136,15.6
+Angiologia,2,2,1,1,2,2,1,-50.0
+Cardiologia,605,634,587,577,624,658,691,14.2
+Cirurgia Cardiovascular,57,69,65,61,65,80,93,63.2
+Cirurgia da Mão,60,64,63,60,63,57,63,5.0
+Cirurgia de Cabeça e Pescoço,53,47,45,37,40,41,29,-45.3
+Cirurgia do Aparelho Digestivo,122,128,122,121,127,122,109,-10.7
+Cirurgia Geral,1724,1700,1737,1630,1355,1459,1537,-10.9
+Cirurgia Oncológica,94,105,91,89,99,94,69,-26.6
+Cirurgia Pediátrica,58,63,59,57,62,67,60,3.5
+Cirurgia Plástica,162,163,157,149,156,167,160,-1.2
+Cirurgia Torácica,47,45,44,3,46,0,36,-23.4
+Cirurgia Vascular,210,222,215,195,216,217,192,-8.6
+Clínica Médica,2705,2863,2922,2987,3102,3170,3384,25.1
+Coloproctologia,80,85,78,73,79,80,87,8.8
+Dermatologia,245,255,245,235,238,256,270,10.2
+Endocrinologia e Metabologia,179,187,197,186,205,206,213,19.0
+Endoscopia,64,67,74,67,73,74,84,31.3
+Gastroenterologia,152,163,162,154,168,169,178,17.1
+Genética Médica,15,22,26,26,25,22,27,80.0
+Geriatria,132,134,139,149,157,167,174,31.8
+Ginecologia e Obstetrícia,1244,1291,1300,1290,1342,1383,1457,17.1
+Hematologia e Hemoterapia,118,121,124,125,129,143,158,33.9
+Homeopatia,4,4,5,6,3,3,5,25.0
+Infectologia,177,175,171,194,195,196,208,17.5
+Mastologia,110,120,113,108,104,97,108,-1.8
+Medicina de Emergência,80,88,141,161,176,202,233,191.3
 "Medicina de Família e
-Comunidade",991,1.139,1.185,1.149,1.290,1.424,1.742,"75,8"
-Medicina do Trabalho,21,21,25,25,26,28,26,"23,8"
-Medicina do Tráfego,LO 5,2,W,0,0,1,4,"-20,0"
-Medicina Esportiva,18,18,16,20,22 222,21,23,"27,8"
-Medicina Física e Reabilitação,29,28,26,26,31,554 37,42,"44,8"
-Medicina Intensiva,178,188,191,217,509,549,610,"242,7"
-Medicina Legal e Perícia Médica,LO 5,LO 5,LO 5,LO 5,0,0,7,"40,0"
-Medicina Nuclear,28,20,22,16,17,24,17,"-39,3"
-Medicina Preventiva e Social,6,12,6,11,10,9,14,"55,6"
-Nefrologia,192,189,175,182,228,228,223,"16,2"
-Neurocirurgia,131,136,133,125,136,142,141,"7,6"
-Neurologia,277,285,289,283,294,314,326,"17,7"
-Nutrologia,CO 6,7,10,7,12,12,11,"83,3"
-Oftalmologia,421,437,430,437,456,483,519,"23,3"
-Oncologia clínica,190,190,189,195,208,220,245,"29,0"
-Ortopedia e Traumatologia,852,858,826,751,804,864,948,"11,3"
-Otorrinolaringologia,212,216,218,215,220,232,234,"10,4"
-Patologia,116,118,112,104,102,103,117,"0,9"
-Patologia Clínica / Medicina Laboratorial,LO 5,4,8,8,LO 5,LO 5,5,"0,0"
-Pediatria,1.669,1.577,1.585,1.557,1.605,1.701,1.817,"8,9"
-Pneumologia,91,107,99,101,11 111,14 114,117 11,"28,6"
-Psiquiatria,507,528,536,530,544,584,650,"28,2"
-Radiologia e Diagnóstico por Imagem,477,རྩེ 482,487,487,522,534,550,"15,3"
-Radioterapia,48,g 50,32,26,29,29,38,"-20,8"
-Reumatologia,109,16 115,121,125,127,131 131,133,"22,0"
-Urologia,214,207,210,213,212,224,209,"-2,3"
-Total,16.302,16.796,16.858,16.594,17.417,18.272,19.551,"19,9"
+Comunidade",991,1139,1185,1149,1290,1424,1742,75.8
+Medicina do Trabalho,21,21,25,25,26,28,26,23.8
+Medicina do Tráfego,5,2,0,0,0,1,4,-20.0
+Medicina Esportiva,18,18,16,20,22,21,23,27.8
+Medicina Física e Reabilitação,29,28,26,26,31,37,42,44.8
+Medicina Intensiva,178,188,191,217,509,549,610,242.7
+Medicina Legal e Perícia Médica,5,5,5,5,0,0,7,40.0
+Medicina Nuclear,28,20,22,16,17,24,17,-39.3
+Medicina Preventiva e Social,6,12,6,11,10,9,14,55.6
+Nefrologia,192,189,175,182,228,228,223,16.2
+Neurocirurgia,131,136,133,125,136,142,141,7.6
+Neurologia,277,285,289,283,294,314,326,17.7
+Nutrologia,6,7,10,7,12,12,11,83.3
+Oftalmologia,421,437,430,437,456,483,519,23.3
+Oncologia clínica,190,190,189,195,208,220,245,29.0
+Ortopedia e Traumatologia,852,858,826,751,804,864,948,11.3
+Otorrinolaringologia,212,216,218,215,220,232,234,10.4
+Patologia,116,118,112,104,102,103,117,0.9
+Patologia Clínica / Medicina Laboratorial,5,4,8,8,5,5,5,0.0
+Pediatria,1669,1577,1585,1557,1605,1701,1817,8.9
+Pneumologia,91,107,99,101,11,14,11,28.6
+Psiquiatria,507,528,536,530,544,584,650,28.2
+Radiologia e Diagnóstico por Imagem,477,482,487,487,522,534,550,15.3
+Radioterapia,48,50,32,26,29,29,38,-20.8
+Reumatologia,109,16,121,125,127,131,133,22.0
+Urologia,214,207,210,213,212,224,209,-2.3
+Total,16302,16796,16858,16594,17417,18272,19551,19.9
