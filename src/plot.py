@@ -1,0 +1,230 @@
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import streamlit as st
+
+
+def create_specialty_growth_chart(specialty, specialty_history):
+    """
+    Create a chart showing the evolution of residency positions for a specialty from 2018-2024.
+
+    Args:
+        specialty (str): Name of the medical specialty
+        specialty_history (DataFrame): DataFrame containing the specialty's historical data
+
+    Returns:
+        None: Displays the chart and data table directly in Streamlit
+    """
+    if specialty_history.empty:
+        st.warning(f"Dados históricos não disponíveis para {specialty}")
+        return
+
+    # Extract years and values for plotting
+    years = ["2018", "2019", "2020", "2021", "2022", "2023", "2024"]
+    values = specialty_history[years].values.flatten().tolist()
+
+    # Create a DataFrame for plotting
+    plot_df = pd.DataFrame({"Ano": years, "Vagas": values})
+
+    # Calculate year-over-year growth percentages
+    yoy_growth = []
+    for i in range(1, len(values)):
+        if values[i - 1] > 0:  # Avoid division by zero
+            pct_change = ((values[i] - values[i - 1]) / values[i - 1]) * 100
+        else:
+            pct_change = 0
+        yoy_growth.append(pct_change)
+
+    # Create the chart using Plotly
+    fig = go.Figure()
+
+    # Add bars for number of positions with wider width and better spacing
+    fig.add_trace(
+        go.Bar(
+            x=years,
+            y=values,
+            name="Vagas",
+            marker_color="rgba(58, 71, 180, 0.8)",
+            width=0.6,  # Make bars wider
+        )
+    )
+
+    # Add line for growth trend
+    fig.add_trace(
+        go.Scatter(
+            x=years,
+            y=values,
+            name="Tendência",
+            line=dict(color="rgba(246, 78, 139, 1.0)", width=3),
+            mode="lines",
+        )
+    )
+
+    # Customize layout
+    fig.update_layout(
+        title=f"Vagas de R1: {specialty} (2018-2024)",
+        title_font_size=18,
+        xaxis_title="Ano",
+        yaxis_title="Número de Vagas R1",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        plot_bgcolor="rgba(240, 240, 240, 0.8)",
+        height=400,
+        # Improve x-axis
+        xaxis=dict(
+            tickmode="array",
+            tickvals=years,
+            ticktext=years,
+            tickangle=0,
+            type="category",  # Use category type to ensure even spacing
+        ),
+        # Add margin for better spacing
+        margin=dict(l=40, r=40, t=60, b=40),
+    )
+
+    # Add annotations for growth/decline
+    growth = float(specialty_history["crescimento_total"].values[0])
+    color = "green" if growth >= 0 else "red"
+
+    fig.add_annotation(
+        x=years[-1],
+        y=values[-1],
+        text=f"Crescimento Total: {growth:.1f}%",
+        showarrow=True,
+        arrowhead=1,
+        arrowcolor=color,
+        arrowsize=1,
+        arrowwidth=2,
+        bgcolor="white",
+        bordercolor=color,
+        borderwidth=2,
+        borderpad=4,
+        font=dict(color=color, size=12),
+    )
+
+    # Display the chart in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Add a small data table with yearly values - with expandable container
+    with st.expander("Ver Dados Anuais"):
+        st.dataframe(
+            plot_df.set_index("Ano").T.style.format("{:.0f}"), use_container_width=True
+        )
+
+
+def create_specialties_comparison_chart(specialty, residents_growth_df):
+    """
+    Create a comparison chart showing growth rates of the selected specialty and related ones.
+
+    Args:
+        specialty (str): The selected medical specialty
+        residents_growth_df (DataFrame): DataFrame containing growth data for all specialties
+
+    Returns:
+        None: Displays the chart and data table directly in Streamlit
+    """
+    # Get the category of the specialty to find related ones
+    # This is a simplified approach - in a real app you might have a more sophisticated categorization
+    surgical_specialties = [
+        "Cirurgia",
+        "Ortopedia",
+        "Neurocirurgia",
+        "Urologia",
+        "Otorrinolaringologia",
+    ]
+    clinical_specialties = [
+        "Clínica",
+        "Medicina",
+        "Cardiologia",
+        "Pneumologia",
+        "Neurologia",
+        "Gastroenterologia",
+    ]
+
+    # Determine if this is a surgical or clinical specialty
+    is_surgical = any(term in specialty for term in surgical_specialties)
+    is_clinical = any(term in specialty for term in clinical_specialties)
+
+    # Find related specialties
+    related_specialties = []
+    if is_surgical:
+        # Find other surgical specialties
+        for spec in residents_growth_df["Especialidade"].unique():
+            if any(term in spec for term in surgical_specialties) and spec != specialty:
+                related_specialties.append(spec)
+    elif is_clinical:
+        # Find other clinical specialties
+        for spec in residents_growth_df["Especialidade"].unique():
+            if any(term in spec for term in clinical_specialties) and spec != specialty:
+                related_specialties.append(spec)
+
+    # Select 2-4 related specialties
+    if len(related_specialties) > 4:
+        related_specialties = related_specialties[:4]
+
+    # Create comparison dataframe
+    specialties_to_compare = [specialty] + related_specialties
+    comparison_data = []
+
+    for spec in specialties_to_compare:
+        spec_data = residents_growth_df[residents_growth_df["Especialidade"] == spec]
+        if not spec_data.empty:
+            growth = float(spec_data["crescimento_total"].values[0])
+            comparison_data.append({"Especialidade": spec, "Crescimento (%)": growth})
+
+    # Add the average growth as well
+    avg_growth = residents_growth_df["crescimento_total"].astype(float).mean()
+    comparison_data.append(
+        {"Especialidade": "Média Nacional", "Crescimento (%)": avg_growth}
+    )
+
+    # Create the comparison dataframe
+    comparison_df = pd.DataFrame(comparison_data)
+
+    # Plot the comparison chart
+    if not comparison_df.empty:
+        fig = px.bar(
+            comparison_df,
+            x="Especialidade",
+            y="Crescimento (%)",
+            color="Crescimento (%)",
+            color_continuous_scale=["red", "orange", "green"],
+            title="Crescimento de Vagas R1 por Especialidade",
+            height=400,
+        )
+
+        fig.update_layout(
+            xaxis_title="Especialidade",
+            yaxis_title="Crescimento de Vagas R1 (%)",
+            coloraxis_showscale=False,
+            plot_bgcolor="rgba(240, 240, 240, 0.8)",
+            # Improve axis display
+            xaxis=dict(
+                tickangle=45,  # Angle labels for better readability with long names
+                type="category",  # Use category type for better spacing
+            ),
+            # Add margin for better spacing
+            margin=dict(
+                l=40, r=20, t=60, b=80
+            ),  # Increase bottom margin for angled labels
+        )
+
+        # Add a horizontal line for zero growth
+        fig.add_shape(
+            type="line",
+            x0=-0.5,
+            y0=0,
+            x1=len(comparison_df) - 0.5,
+            y1=0,
+            line=dict(color="black", width=1, dash="dash"),
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Show a small data table with the values
+        st.caption("Dados de Crescimento")
+        formatted_df = comparison_df.set_index("Especialidade")
+        st.dataframe(formatted_df.style.format({"Crescimento (%)": "{:.1f}%"}))
+    else:
+        st.warning(
+            "Não foi possível encontrar especialidades relacionadas para comparação."
+        )
