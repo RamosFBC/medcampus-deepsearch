@@ -15,7 +15,7 @@ def create_specialist_visualization(specialty, specialty_data_df):
         specialty_data_df (DataFrame): DataFrame containing the specialist data
 
     Returns:
-        None: Displays the charts directly in Streamlit
+        tuple: Tuple of Plotly figure objects that are both displayed in Streamlit and stored in session_state
     """
     # Filter data for the selected specialty
     specialty_row = specialty_data_df[specialty_data_df["especialidade"] == specialty]
@@ -129,10 +129,19 @@ def create_specialist_visualization(specialty, specialty_data_df):
         hoverlabel=dict(bgcolor="white", font_size=14, font_family="Arial"),
     )
 
+    # Store the figure in session_state for PDF generation
+    if "figures" not in st.session_state:
+        st.session_state.figures = {}
+
+    # Store the chart with a descriptive key
+    st.session_state.figures["specialist_distribution_chart"] = fig
+
     st.plotly_chart(fig, use_container_width=True)
 
     # Create a bar chart comparison with similar specialties
-    create_specialists_comparison(specialty, specialty_data_df)
+    comparison_fig = create_specialists_comparison(specialty, specialty_data_df)
+
+    return fig, comparison_fig
 
 
 def create_specialists_comparison(specialty, specialty_data_df):
@@ -144,7 +153,7 @@ def create_specialists_comparison(specialty, specialty_data_df):
         specialty_data_df (DataFrame): DataFrame containing data for all specialties
 
     Returns:
-        None: Displays the chart directly in Streamlit
+        Figure: The Plotly figure object is both displayed in Streamlit and stored in session_state
     """
     # Define specialty categories for grouping
     surgical_specialties = [
@@ -153,6 +162,17 @@ def create_specialists_comparison(specialty, specialty_data_df):
         "Neurocirurgia",
         "Urologia",
         "Otorrinolaringologia",
+        "Coloproctologia",
+        "Ginecologia",
+        "Oftalmologia",
+        "Mastologia",
+        "Oncológica",
+        "Plástica",
+        "Torácica",
+        "Vascular",
+        "Cardiovascular",
+        "Cabeça e Pescoço",
+        "Aparelho Digestivo",
     ]
     clinical_specialties = [
         "Clínica",
@@ -161,6 +181,20 @@ def create_specialists_comparison(specialty, specialty_data_df):
         "Pneumologia",
         "Neurologia",
         "Gastroenterologia",
+        "Angiologia",
+        "Endocrinologia",
+        "Nefrologia",
+        "Hematologia",
+        "Oncologia",
+        "Reumatologia",
+        "Infectologia",
+        "Geriatria",
+        "Dermatologia",
+        "Pediatria",
+        "Psiquiatria",
+        "Nutrologia",
+        "Alergia",
+        "Intensiva",
     ]
 
     # Determine category based on specialty name
@@ -270,6 +304,13 @@ def create_specialists_comparison(specialty, specialty_data_df):
         fig.update_xaxes(tickangle=45, row=1, col=1)
         fig.update_xaxes(tickangle=45, row=1, col=2)
 
+        # Store the figure in session_state for PDF generation
+        if "figures" not in st.session_state:
+            st.session_state.figures = {}
+
+        # Store the chart with a descriptive key
+        st.session_state.figures["specialists_comparison_chart"] = fig
+
         st.plotly_chart(fig, use_container_width=True)
 
         # Add a small data table with the values as an expandable container
@@ -289,7 +330,10 @@ def create_specialists_comparison(specialty, specialty_data_df):
                 ),
                 use_container_width=True,
             )
+
+        return fig
     else:
         st.warning(
             "Não foi possível encontrar especialidades relacionadas para comparação."
         )
+        return None

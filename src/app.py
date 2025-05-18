@@ -3,10 +3,11 @@ import pandas as pd
 import numpy as np
 import asyncio
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 
 from open_deep_research.multi_agent import graph
-from generate_pdf import generate_pdf_from_markdown
+from pdf_generator import generate_complete_pdf
 from inputs import input_prompt
 from plot import create_specialty_growth_chart, create_specialties_comparison_chart
 from plot_specialists import create_specialist_visualization
@@ -281,17 +282,42 @@ if st.session_state.report_generated and st.session_state.result:
     with report_container:
         st.markdown(final_report)
 
-    # Uncomment the PDF generation when ready to enable it
-    # # Generate the PDF from the final report
-    # pdf_path = generate_pdf_from_markdown(final_report, title=report_title)
-    # # Provide a download link for the PDF
-    # with open(pdf_path, "rb") as file:
-    #     btn = st.download_button(
-    #         label="Baixar PDF do Relatório",
-    #         data=file,
-    #         file_name=os.path.basename(pdf_path),
-    #         mime="application/pdf",
-    #     )
+    # All charts are now stored directly in session_state.figures from our updated visualization functions
+
+    # Generate PDF with charts
+    from pdf_generator import generate_complete_pdf
+
+    # TEMPORARY FIX: Use empty figures dictionary to bypass Kaleido errors
+    # Original code:
+    # figures = st.session_state.figures if "figures" in st.session_state else {}
+    figures = {}  # Empty dictionary to bypass image handling
+
+    # Generate the PDF from the final report with metadata
+    metadata = {
+        "Especialidade": st.session_state.report_info["especialidade"],
+        "Região": st.session_state.report_info["local"],
+        "Data de Geração": datetime.now().strftime("%d/%m/%Y %H:%M"),
+        "Fonte de Dados": "MedCampus - Sistema de Análise de Residência Médica",
+    }
+
+    # Generate PDF with enhanced styling
+    subtitle = f"Análise da Residência Médica em {st.session_state.report_info['especialidade']}"
+    pdf_path = generate_complete_pdf(
+        markdown_content=final_report,
+        figures=figures,
+        title=report_title,
+        subtitle=subtitle,
+        metadata=metadata,
+    )
+
+    # Provide a download link for the PDF
+    with open(pdf_path, "rb") as file:
+        btn = st.download_button(
+            label="Baixar PDF do Relatório",
+            data=file,
+            file_name=os.path.basename(pdf_path),
+            mime="application/pdf",
+        )
     # st.write(f"Relatório salvo em: {pdf_path}")
 
     # # Add a comparison chart with related specialties

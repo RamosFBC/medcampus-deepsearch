@@ -13,7 +13,7 @@ def create_specialty_growth_chart(specialty, specialty_history):
         specialty_history (DataFrame): DataFrame containing the specialty's historical data
 
     Returns:
-        None: Displays the chart and data table directly in Streamlit
+        Figure: The Plotly figure object is both displayed in Streamlit and stored in session_state
     """
     if specialty_history.empty:
         st.warning(f"Dados históricos não disponíveis para {specialty}")
@@ -141,6 +141,13 @@ def create_specialty_growth_chart(specialty, specialty_history):
         align="center",
     )
 
+    # Store the figure in session_state for PDF generation
+    if "figures" not in st.session_state:
+        st.session_state.figures = {}
+    
+    # Store the chart with a descriptive key
+    st.session_state.figures["specialty_growth_chart"] = fig
+    
     # Display the chart in Streamlit with full width to prevent condensing
     st.plotly_chart(
         fig,
@@ -153,6 +160,8 @@ def create_specialty_growth_chart(specialty, specialty_history):
         st.dataframe(
             plot_df.set_index("Ano").T.style.format("{:.0f}"), use_container_width=True
         )
+        
+    return fig
 
 
 def create_specialties_comparison_chart(specialty, residents_growth_df):

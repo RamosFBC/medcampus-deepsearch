@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+            @bottom-right {
+                content: "Página " counter(page) " de " counter(pages);
+            }
+            @bottom-left {
+                content: "MedCampus - {{ date }}";
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            font-size: 12px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2cm;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 0.3cm;
+        }
+        
+        .header .subtitle {
+            font-size: 18px;
+            color: #7f8c8d;
+        }
+        
+        .section {
+            margin-bottom: 1.5cm;
+        }
+        
+        h2 {
+            color: #2980b9;
+            font-size: 18px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        h3 {
+            color: #3498db;
+            font-size: 16px;
+        }
+        
+        .chart-container {
+            width: 100%;
+            margin: 1cm 0;
+            text-align: center;
+        }
+        
+        .chart-container img {
+            max-width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1cm 0;
+        }
+        
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .metrics {
+            display: flex;
+            justify-content: space-around;
+            margin: 1cm 0;
+        }
+        
+        .metric {
+            text-align: center;
+            padding: 1cm;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        
+        .metric .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .metric .label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .footer {
+            margin-top: 2cm;
+            font-size: 10px;
+            color: #7f8c8d;
+            text-align: center;
+            border-top: 1px solid #eee;
+            padding-top: 0.5cm;
+        }
+        
+        /* New classes for markdown content */
+        .markdown ul, .markdown ol {
+            margin-left: 2em;
+        }
+        
+        .markdown blockquote {
+            border-left: 4px solid #ccc;
+            padding-left: 1em;
+            margin-left: 0;
+            color: #666;
+        }
+        
+        .markdown pre {
+            background: #f8f8f8;
+            padding: 1em;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+        
+        .markdown code {
+            background: #f8f8f8;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        /* New classes for image captions */
+        .chart-caption {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5em;
+        }
+        
+        /* Page break control */
+        .page-break {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ title }}</h1>
+        <div class="subtitle">{{ subtitle }}</div>
+    </div>
+    
+    {{ content|safe }}
+    
+    <div class="footer">
+        Relatório gerado em {{ date }} | MedCampus
+    </div>
+</body>
+</html>
