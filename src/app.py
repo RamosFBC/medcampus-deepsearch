@@ -1,15 +1,15 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import asyncio
+import os
+from dotenv import load_dotenv
 
 from open_deep_research.multi_agent import graph
 from generate_pdf import generate_pdf_from_markdown
 from inputs import input_prompt
 from plot import create_specialty_growth_chart, create_specialties_comparison_chart
-
-import asyncio
-from dotenv import load_dotenv
-import os
+from plot_specialists import create_specialist_visualization
 
 st.set_page_config(
     page_title="Open Deep Research", page_icon=":guardsman:", layout="wide"
@@ -43,9 +43,12 @@ async def run_graph(initial_input):
 
 residents_number_path = "data/residents_1_n.csv"
 residents_growth_path = "data/residency_growth_cleaned.csv"
-# Load the CSV file into a DataFrame
+specialty_data_path = "data/specialty_data.csv"
+
+# Load the CSV files into DataFrames
 residents_number_df = pd.read_csv(residents_number_path)
 residents_growth_df = pd.read_csv(residents_growth_path)
+specialty_data_df = pd.read_csv(specialty_data_path)
 
 specialties = sorted(residents_number_df["Especialidade"].unique().tolist())
 estados = [
@@ -259,6 +262,15 @@ if st.session_state.report_generated and st.session_state.result:
     # Create and display the specialty growth chart using the imported function
     create_specialty_growth_chart(specialty, specialty_history)
 
+    # Add a divider before the specialist visualization section
+    st.divider()
+
+    # Create and display the specialist distribution visualization
+    create_specialist_visualization(specialty, specialty_data_df)
+
+    # Add a divider after the specialist visualization
+    st.divider()
+
     # Get the final report content
     final_report = st.session_state.result["final_report"]
     report_title = f"Relatório sobre {st.session_state.report_info['especialidade']} em {st.session_state.report_info['local']}"
@@ -282,13 +294,13 @@ if st.session_state.report_generated and st.session_state.result:
     #     )
     # st.write(f"Relatório salvo em: {pdf_path}")
 
-    # Add a comparison chart with related specialties
-    st.subheader("Crescimento Comparativo de Vagas R1")
+    # # Add a comparison chart with related specialties
+    # st.subheader("Crescimento Comparativo de Vagas R1")
 
-    specialty = st.session_state.report_info["especialidade"]
+    # specialty = st.session_state.report_info["especialidade"]
 
-    # Create and display the specialties comparison chart using the imported function
-    create_specialties_comparison_chart(specialty, residents_growth_df)
+    # # Create and display the specialties comparison chart using the imported function
+    # create_specialties_comparison_chart(specialty, residents_growth_df)
 
     # Add a divider before showing the debug input
     st.divider()

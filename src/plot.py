@@ -35,17 +35,22 @@ def create_specialty_growth_chart(specialty, specialty_history):
             pct_change = 0
         yoy_growth.append(pct_change)
 
-    # Create the chart using Plotly
+    # Create the chart using Plotly with specific width to distribute data
     fig = go.Figure()
 
-    # Add bars for number of positions with wider width and better spacing
+    # Calculate min and max for better scaling
+    min_value = min(values) if values else 0
+    max_value = max(values) if values else 100
+    y_range = [0, max_value * 1.2]  # Add 20% padding to the top
+
+    # Add bars for number of positions with proper spacing
     fig.add_trace(
         go.Bar(
             x=years,
             y=values,
             name="Vagas",
-            marker_color="rgba(58, 71, 180, 0.8)",
-            width=0.6,  # Make bars wider
+            marker_color="rgba(58, 71, 180, 0.6)",  # Adjusted transparency
+            width=0.5,  # Slightly narrower bars for better spacing
         )
     )
 
@@ -55,54 +60,93 @@ def create_specialty_growth_chart(specialty, specialty_history):
             x=years,
             y=values,
             name="Tendência",
-            line=dict(color="rgba(246, 78, 139, 1.0)", width=3),
-            mode="lines",
+            line=dict(color="rgba(246, 78, 139, 1.0)", width=2),  # Thinner line
+            mode="lines+markers",  # Add markers at data points
+            marker=dict(
+                size=6,
+                color="rgba(246, 78, 139, 1.0)",
+                line=dict(width=1, color="white"),
+            ),
         )
     )
 
     # Customize layout
     fig.update_layout(
         title=f"Vagas de R1: {specialty} (2018-2024)",
-        title_font_size=18,
+        title_font_size=20,
+        title_x=0.5,  # Center the title
         xaxis_title="Ano",
         yaxis_title="Número de Vagas R1",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        plot_bgcolor="rgba(240, 240, 240, 0.8)",
+        yaxis_range=y_range,  # Apply calculated range
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            font=dict(size=12),
+        ),
+        plot_bgcolor="white",  # White background for cleaner look
+        paper_bgcolor="white",  # White paper background
         height=400,
-        # Improve x-axis
+        # Improve x-axis with better distribution
         xaxis=dict(
             tickmode="array",
             tickvals=years,
             ticktext=years,
             tickangle=0,
             type="category",  # Use category type to ensure even spacing
+            gridcolor="rgba(240, 240, 240, 0.8)",  # Light grid lines
+            showgrid=True,  # Show grid
+            rangeslider=dict(  # Add range slider for interactive exploration
+                visible=False
+            ),
+            constrain="domain",  # This helps with spacing
+        ),
+        # Improve y-axis with better range distribution
+        yaxis=dict(
+            gridcolor="rgba(240, 240, 240, 0.8)",  # Light grid lines
+            showgrid=True,  # Show grid
+            rangemode="tozero",  # Start y-axis at zero
+            automargin=True,  # Add margin as needed
+            fixedrange=False,  # Allow zooming
         ),
         # Add margin for better spacing
-        margin=dict(l=40, r=40, t=60, b=40),
+        margin=dict(l=60, r=40, t=80, b=40),  # Increased left margin for y-axis labels
     )
 
     # Add annotations for growth/decline
     growth = float(specialty_history["crescimento_total"].values[0])
     color = "green" if growth >= 0 else "red"
 
+    # Add a box annotation at the top of the chart for growth
     fig.add_annotation(
-        x=years[-1],
-        y=values[-1],
+        x=0.5,  # Center of the chart
+        y=1.05,  # Just above the chart
+        xref="paper",
+        yref="paper",
         text=f"Crescimento Total: {growth:.1f}%",
         showarrow=True,
-        arrowhead=1,
+        arrowhead=2,
         arrowcolor=color,
         arrowsize=1,
         arrowwidth=2,
+        ax=0,  # Make arrow point straight down
+        ay=30,  # Length of the arrow
         bgcolor="white",
         bordercolor=color,
         borderwidth=2,
         borderpad=4,
         font=dict(color=color, size=12),
+        align="center",
     )
 
-    # Display the chart in Streamlit
-    st.plotly_chart(fig, use_container_width=True)
+    # Display the chart in Streamlit with full width to prevent condensing
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+        config={"displayModeBar": True, "responsive": True},
+    )
 
     # Add a small data table with yearly values - with expandable container
     with st.expander("Ver Dados Anuais"):
