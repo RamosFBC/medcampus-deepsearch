@@ -20,7 +20,7 @@ st.set_page_config(
 try:
     for key, value in st.secrets.items():
         os.environ[key] = str(value)
-    st.sidebar.success("✅ Secrets loaded successfully!")
+    # st.sidebar.success("✅ Secrets loaded successfully!")
 except Exception as e:
     st.sidebar.error(f"❌ Error loading secrets: {str(e)}")
     st.sidebar.info(
@@ -241,9 +241,7 @@ if st.session_state["authenticated"]:
                     "Analisando dados sobre a especialidade...",
                     "Avaliando cenário de residência médica...",
                     "Processando informações sobre vagas e concorrência...",
-                    "Construindo recomendações personalizadas...",
-                    "Formatando relatório final...",
-                    "Quase pronto...",
+                    "Gerando seu relatório. Isso pode levar alguns minutos.",
                 ]
 
                 # Show each message for a moment to simulate progress
@@ -392,10 +390,10 @@ if st.session_state["authenticated"]:
                 file_name=os.path.basename(pdf_path),
                 mime="application/pdf",
             )
-        st.write(f"Relatório salvo em: {pdf_path}")
+        # st.write(f"Relatório salvo em: {pdf_path}")
 
         # Add a comparison chart with related specialties
-        st.subheader("Crescimento Comparativo de Vagas R1")
+        # st.subheader("Crescimento Comparativo de Vagas R1")
 
         # specialty = st.session_state.report_info["especialidade"]
 
