@@ -51,7 +51,29 @@ aluno = "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c"  # al
 
 ## Troubleshooting
 
+### Common Issues
+
+#### Missing System Libraries
+
+If you encounter errors like this:
+
+```
+OSError: cannot load library 'libpango-1.0-0': libpango-1.0-0: cannot open shared object file: No such file or directory
+```
+
+This indicates that required system libraries for WeasyPrint (used for PDF generation) are missing. The `packages.txt` file should include all necessary system dependencies, but if you encounter this issue:
+
+1. Check if the required libraries are correctly listed in `packages.txt`
+2. Ensure the following Pango-related libraries are included:
+   - libpango1.0-dev
+   - libpangocairo-1.0-0
+   - libpango-1.0-0
+   - libpangoft2-1.0-0
+
+#### Other Troubleshooting Steps
+
 - If the app fails to deploy, check the build logs for errors
 - Ensure all dependencies are correctly listed in requirements.txt
 - Make sure all system dependencies are listed in packages.txt
 - Verify that all necessary secrets are added in the Streamlit Cloud settings
+- If using WeasyPrint for PDF generation, ensure all font libraries are properly installed

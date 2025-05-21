@@ -409,14 +409,27 @@ def generate_pdf_from_markdown(markdown_content, title=None, charts=None):
     template = env.get_template("base.html")
     rendered_html = template.render(**template_data)
 
-    # Create PDF using WeasyPrint
-    html = HTML(string=rendered_html)
-    css = CSS(string=DEFAULT_CSS)
+    # Create PDF using WeasyPrint with fallback
+    try:
+        html = HTML(string=rendered_html)
+        css = CSS(string=DEFAULT_CSS)
 
-    # Generate PDF
-    html.write_pdf(output_path, stylesheets=[css])
+        # Generate PDF
+        html.write_pdf(output_path, stylesheets=[css])
 
-    return output_path
+        return output_path
+    except Exception as e:
+        # Log the error
+        print(f"Error generating PDF with WeasyPrint: {e}")
+        st.error(f"Error generating PDF: {e}")
+
+        # Fallback: Save HTML file instead
+        html_path = os.path.join(PDF_DIR, f"{filename}.html")
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(rendered_html)
+
+        print(f"Fallback: HTML saved to {html_path}")
+        return html_path
 
 
 def convert_streamlit_fig_to_chart_object(fig, title, description):

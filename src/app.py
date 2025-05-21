@@ -374,22 +374,43 @@ if st.session_state["authenticated"]:
 
         # Generate PDF with enhanced styling
         subtitle = f"Análise da Residência Médica em {st.session_state.report_info['especialidade']}"
-        pdf_path = generate_complete_pdf(
-            markdown_content=final_report,
-            figures=figures,
-            title=report_title,
-            subtitle=subtitle,
-            metadata=metadata,
-        )
-
-        # Provide a download link for the PDF
-        with open(pdf_path, "rb") as file:
-            btn = st.download_button(
-                label="Baixar PDF do Relatório",
-                data=file,
-                file_name=os.path.basename(pdf_path),
-                mime="application/pdf",
+        try:
+            pdf_path = generate_complete_pdf(
+                markdown_content=final_report,
+                figures=figures,
+                title=report_title,
+                subtitle=subtitle,
+                metadata=metadata,
             )
+
+            # Check if the generated file is PDF or HTML (fallback)
+            file_ext = os.path.splitext(pdf_path)[1].lower()
+
+            # Provide a download link for the file
+            with open(pdf_path, "rb") as file:
+                mime_type = "application/pdf" if file_ext == ".pdf" else "text/html"
+                download_label = (
+                    "Baixar PDF do Relatório"
+                    if file_ext == ".pdf"
+                    else "Baixar HTML do Relatório"
+                )
+
+                btn = st.download_button(
+                    label=download_label,
+                    data=file,
+                    file_name=os.path.basename(pdf_path),
+                    mime=mime_type,
+                )
+
+            # If using HTML fallback, show a notice to the user
+            if file_ext != ".pdf":
+                st.warning(
+                    "Não foi possível gerar um PDF devido a limitações do servidor. Um arquivo HTML foi gerado no lugar."
+                )
+
+        except Exception as e:
+            st.error(f"Erro ao gerar o relatório: {str(e)}")
+            st.info("Você ainda pode copiar o texto do relatório acima.")
         # st.write(f"Relatório salvo em: {pdf_path}")
 
         # Add a comparison chart with related specialties

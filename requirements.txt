@@ -10,3 +10,5 @@ langchain-openai>=0.0.2
 asyncio>=3.4.3
 python-dotenv>=1.0.0
 hashlib_pbkdf2>=0.3
+fpdf2>=2.7.5
+pdfkit>=1.0.0
