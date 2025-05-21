@@ -288,4 +288,10 @@ Follow the [quickstart](#-quickstart) to start LangGraph server locally.
 
 ### Hosted deployment
 
+#### LangGraph Deployment
+
 You can easily deploy to [LangGraph Platform](https://langchain-ai.github.io/langgraph/concepts/#deployment-options).
+
+#### Streamlit Cloud Deployment
+
+To deploy the MedCampus application to Streamlit Community Cloud, see [STREAMLIT_DEPLOYMENT.md](STREAMLIT_DEPLOYMENT.md) for detailed instructions.

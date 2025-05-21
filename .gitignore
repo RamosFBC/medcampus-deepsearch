@@ -29,7 +29,7 @@ MANIFEST
 .langgraph_api/
 
 secrets.toml
-.streamlit
+
 # PyInstaller
 # Usually these files are written by a CI, but they should be ignored
 # through normal development.
