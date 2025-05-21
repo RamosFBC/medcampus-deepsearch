@@ -115,39 +115,39 @@ def create_specialty_growth_chart(specialty, specialty_history):
         margin=dict(l=60, r=40, t=80, b=40),  # Increased left margin for y-axis labels
     )
 
-    # Add annotations for growth/decline
-    growth = float(specialty_history["crescimento_total"].values[0])
-    color = "green" if growth >= 0 else "red"
+    # # Add annotations for growth/decline
+    # growth = float(specialty_history["crescimento_total"].values[0])
+    # color = "green" if growth >= 0 else "red"
 
-    # Add a box annotation at the top of the chart for growth
-    fig.add_annotation(
-        x=0.5,  # Center of the chart
-        y=1.05,  # Just above the chart
-        xref="paper",
-        yref="paper",
-        text=f"Crescimento Total: {growth:.1f}%",
-        showarrow=True,
-        arrowhead=2,
-        arrowcolor=color,
-        arrowsize=1,
-        arrowwidth=2,
-        ax=0,  # Make arrow point straight down
-        ay=30,  # Length of the arrow
-        bgcolor="white",
-        bordercolor=color,
-        borderwidth=2,
-        borderpad=4,
-        font=dict(color=color, size=12),
-        align="center",
-    )
+    # # Add a box annotation at the top of the chart for growth
+    # fig.add_annotation(
+    #     x=0.5,  # Center of the chart
+    #     y=1.05,  # Just above the chart
+    #     xref="paper",
+    #     yref="paper",
+    #     text=f"Crescimento Total: {growth:.1f}%",
+    #     showarrow=True,
+    #     arrowhead=2,
+    #     arrowcolor=color,
+    #     arrowsize=1,
+    #     arrowwidth=2,
+    #     ax=0,  # Make arrow point straight down
+    #     ay=30,  # Length of the arrow
+    #     bgcolor="white",
+    #     bordercolor=color,
+    #     borderwidth=2,
+    #     borderpad=4,
+    #     font=dict(color=color, size=12),
+    #     align="center",
+    # )
 
     # Store the figure in session_state for PDF generation
     if "figures" not in st.session_state:
         st.session_state.figures = {}
-    
+
     # Store the chart with a descriptive key
     st.session_state.figures["specialty_growth_chart"] = fig
-    
+
     # Display the chart in Streamlit with full width to prevent condensing
     st.plotly_chart(
         fig,
@@ -160,7 +160,7 @@ def create_specialty_growth_chart(specialty, specialty_history):
         st.dataframe(
             plot_df.set_index("Ano").T.style.format("{:.0f}"), use_container_width=True
         )
-        
+
     return fig
 
 

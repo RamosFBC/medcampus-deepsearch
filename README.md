@@ -6,21 +6,48 @@ Open Deep Research is an experimental, fully open-source research assistant that
 
 ![open-deep-research-overview](https://github.com/user-attachments/assets/a171660d-b735-4587-ab2f-cd771f773756)
 
-####  Multi-agent
+#### Multi-agent
 
 ![multi-agent-researcher](https://github.com/user-attachments/assets/3c734c3c-57aa-4bc0-85dd-74e2ec2c0880)
 
 ### 🚀 Quickstart
 
 Clone the repository:
+
 ```bash
 git clone https://github.com/langchain-ai/open_deep_research.git
 cd open_deep_research
 ```
 
-Then edit the `.env` file to customize the environment variables (for model selection, search tools, and other configuration settings):
+Create a `.streamlit/secrets.toml` file to customize the environment variables (for model selection, search tools, authentication, and other configuration settings):
+
 ```bash
-cp .env.example .env
+mkdir -p .streamlit
+touch .streamlit/secrets.toml
+```
+
+Edit the `secrets.toml` file with your API keys, user authentication details, and configurations. Here's an example of the expected format:
+
+```toml
+# API Keys for various LLM providers
+OPENAI_API_KEY="your-openai-api-key"
+ANTHROPIC_API_KEY="your-anthropic-api-key"
+GOOGLE_API_KEY="your-google-api-key"
+TAVILY_API_KEY="your-tavily-api-key"
+GROQ_API_KEY="your-groq-api-key"
+PERPLEXITY_API_KEY="your-perplexity-api-key"
+
+# LangSmith configuration (optional, for tracing)
+LANGSMITH_TRACING="true"
+LANGSMITH_ENDPOINT="https://api.smith.langchain.com"
+LANGSMITH_API_KEY="your-langsmith-api-key"
+LANGSMITH_PROJECT="your-project-name"
+
+# User authentication credentials (SHA-256 hashed passwords)
+[usernames]
+admin = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"  # admin
+professor = "1c4a19e75e705aee9894355a1d5c81c93e9ad6339e7e3a36b8c8192b6c79c8cf"  # professor123
+aluno = "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c"  # aluno123
 ```
 
 Launch the assistant with the LangGraph server locally, which will open in your browser:
@@ -38,15 +65,16 @@ uvx --refresh --from "langgraph-cli[inmem]" --with-editable . --python 3.11 lang
 #### Windows / Linux
 
 ```powershell
-# Install dependencies 
+# Install dependencies
 pip install -e .
-pip install -U "langgraph-cli[inmem]" 
+pip install -U "langgraph-cli[inmem]"
 
 # Start the LangGraph server
 langgraph dev
 ```
 
 Use this to open the Studio UI:
+
 ```
 - 🚀 API: http://127.0.0.1:2024
 - 🎨 Studio UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
@@ -85,23 +113,50 @@ The report is produced as markdown.
 
 <img width="1326" alt="report" src="https://github.com/user-attachments/assets/92d9f7b7-3aea-4025-be99-7fb0d4b47289" />
 
+### Authentication
+
+The application includes a basic authentication system to protect your data:
+
+- **User Authentication**: Uses username/password to control access to the application
+- **Secure Password Storage**: Passwords are stored as SHA-256 hashes in the secrets.toml file
+- **Multiple User Accounts**: Support for different users with varying access levels
+- **Session Management**: User sessions are maintained using Streamlit session state
+
+To generate new user credentials, use the following Python code:
+
+```python
+import hashlib
+
+def make_hash(password):
+    return hashlib.sha256(str.encode(password)).hexdigest()
+
+# Example:
+hashed_pwd = make_hash("your_password")
+print(hashed_pwd)  # Add this to your secrets.toml under [usernames]
+```
+
+Default credentials are provided if none are defined in secrets:
+
+- Username: `admin` / Password: `admin123`
+- Username: `user` / Password: `user123`
+
 ### Search Tools
 
 Available search tools:
 
-* [Tavily API](https://tavily.com/) - General web search
-* [Perplexity API](https://www.perplexity.ai/hub/blog/introducing-the-sonar-pro-api) - General web search
-* [Exa API](https://exa.ai/) - Powerful neural search for web content
-* [ArXiv](https://arxiv.org/) - Academic papers in physics, mathematics, computer science, and more
-* [PubMed](https://pubmed.ncbi.nlm.nih.gov/) - Biomedical literature from MEDLINE, life science journals, and online books
-* [Linkup API](https://www.linkup.so/) - General web search
-* [DuckDuckGo API](https://duckduckgo.com/) - General web search
-* [Google Search API/Scrapper](https://google.com/) - Create custom search engine [here](https://programmablesearchengine.google.com/controlpanel/all) and get API key [here](https://developers.google.com/custom-search/v1/introduction)
+- [Tavily API](https://tavily.com/) - General web search
+- [Perplexity API](https://www.perplexity.ai/hub/blog/introducing-the-sonar-pro-api) - General web search
+- [Exa API](https://exa.ai/) - Powerful neural search for web content
+- [ArXiv](https://arxiv.org/) - Academic papers in physics, mathematics, computer science, and more
+- [PubMed](https://pubmed.ncbi.nlm.nih.gov/) - Biomedical literature from MEDLINE, life science journals, and online books
+- [Linkup API](https://www.linkup.so/) - General web search
+- [DuckDuckGo API](https://duckduckgo.com/) - General web search
+- [Google Search API/Scrapper](https://google.com/) - Create custom search engine [here](https://programmablesearchengine.google.com/controlpanel/all) and get API key [here](https://developers.google.com/custom-search/v1/introduction)
 
-Open Deep Research is compatible with many different LLMs: 
+Open Deep Research is compatible with many different LLMs:
 
-* You can select any model that is integrated [with the `init_chat_model()` API](https://python.langchain.com/docs/how_to/chat_models_universal_init/)
-* See full list of supported integrations [here](https://python.langchain.com/api_reference/langchain/chat_models/langchain.chat_models.base.init_chat_model.html)
+- You can select any model that is integrated [with the `init_chat_model()` API](https://python.langchain.com/docs/how_to/chat_models_universal_init/)
+- See full list of supported integrations [here](https://python.langchain.com/api_reference/langchain/chat_models/langchain.chat_models.base.init_chat_model.html)
 
 ### Using the package
 
@@ -165,6 +220,7 @@ Not all search APIs support additional configuration parameters. Here are the on
 - **Linkup**: `depth`
 
 Example with Exa configuration:
+
 ```python
 thread = {"configurable": {"thread_id": str(uuid.uuid4()),
                            "search_api": "exa",
@@ -180,17 +236,20 @@ thread = {"configurable": {"thread_id": str(uuid.uuid4()),
 
 (1) You can use models supported with [the `init_chat_model()` API](https://python.langchain.com/docs/how_to/chat_models_universal_init/). See full list of supported integrations [here](https://python.langchain.com/api_reference/langchain/chat_models/langchain.chat_models.base.init_chat_model.html).
 
-(2) ***The workflow planner and writer models need to support structured outputs***: Check whether structured outputs are supported by the model you are using [here](https://python.langchain.com/docs/integrations/chat/).
+(2) **_The workflow planner and writer models need to support structured outputs_**: Check whether structured outputs are supported by the model you are using [here](https://python.langchain.com/docs/integrations/chat/).
 
-(3) ***The agent models need to support tool calling:*** Ensure tool calling is well supoorted; tests have been done with Claude 3.7, o3, o3-mini, and gpt4.1. See [here](https://smith.langchain.com/public/adc5d60c-97ee-4aa0-8b2c-c776fb0d7bd6/d).
+(3) **_The agent models need to support tool calling:_** Ensure tool calling is well supoorted; tests have been done with Claude 3.7, o3, o3-mini, and gpt4.1. See [here](https://smith.langchain.com/public/adc5d60c-97ee-4aa0-8b2c-c776fb0d7bd6/d).
 
 (4) With Groq, there are token per minute (TPM) limits if you are on the `on_demand` service tier:
+
 - The `on_demand` service tier has a limit of `6000 TPM`
 - You will want a [paid plan](https://github.com/cline/cline/issues/47#issuecomment-2640992272) for section writing with Groq models
 
-(5) `deepseek-R1` [is not strong at function calling](https://api-docs.deepseek.com/guides/reasoning_model), which the assistant uses to generate structured outputs for report sections and report section grading. See example traces [here](https://smith.langchain.com/public/07d53997-4a6d-4ea8-9a1f-064a85cd6072/r).  
+(5) `deepseek-R1` [is not strong at function calling](https://api-docs.deepseek.com/guides/reasoning_model), which the assistant uses to generate structured outputs for report sections and report section grading. See example traces [here](https://smith.langchain.com/public/07d53997-4a6d-4ea8-9a1f-064a85cd6072/r).
+
 - Consider providers that are strong at function calling such as OpenAI, Anthropic, and certain OSS models like Groq's `llama-3.3-70b-versatile`.
 - If you see the following error, it is likely due to the model not being able to produce structured outputs (see [trace](https://smith.langchain.com/public/8a6da065-3b8b-4a92-8df7-5468da336cbe/r)):
+
 ```
 groq.APIError: Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.
 ```
@@ -228,5 +287,5 @@ The test results will be logged to LangSmith, allowing you to compare the qualit
 Follow the [quickstart](#-quickstart) to start LangGraph server locally.
 
 ### Hosted deployment
- 
-You can easily deploy to [LangGraph Platform](https://langchain-ai.github.io/langgraph/concepts/#deployment-options). 
+
+You can easily deploy to [LangGraph Platform](https://langchain-ai.github.io/langgraph/concepts/#deployment-options).
