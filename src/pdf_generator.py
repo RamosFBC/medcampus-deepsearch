@@ -22,6 +22,7 @@ import importlib
 WEASYPRINT_AVAILABLE = False
 try:
     from weasyprint import HTML, CSS
+
     WEASYPRINT_AVAILABLE = True
 except (ImportError, OSError) as e:
     print(f"WeasyPrint not available: {e}")

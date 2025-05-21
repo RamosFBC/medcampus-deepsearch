@@ -25,8 +25,7 @@ os.makedirs(TEMPLATES_DIR, exist_ok=True)
 env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
 
 # Default CSS styling
-DEFAULT_CSS = (
-    """
+DEFAULT_CSS = """
 body {
     font-family: 'Arial', sans-serif;
     line-height: 1.6;
@@ -205,7 +204,6 @@ blockquote {
     }
 }
 """
-)
 
 # Create the base HTML template
 BASE_TEMPLATE = """<!DOCTYPE html>
@@ -226,7 +224,7 @@ BASE_TEMPLATE = """<!DOCTYPE html>
 <body>
     <div class="header">
         <div class="header-left">
-            <h1>MedCampus</h1>
+            <h1>Plano de Carreira</h1>
         </div>
         <div class="header-right">
             <p>Relatório gerado em: {{ date }}</p>
@@ -436,11 +434,11 @@ def generate_html_report(markdown_content, title=None, charts=None):
     # Render template
     template = env.get_template("base.html")
     rendered_html = template.render(**template_data)
-    
+
     # Save HTML file
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(rendered_html)
-    
+
     return html_path
 
 
@@ -468,7 +466,7 @@ def save_charts_to_session_state(chart_objects):
     """
     if "figures" not in st.session_state:
         st.session_state.figures = {}
-    
+
     for chart in chart_objects:
         if "title" in chart and chart["title"]:
             key_name = chart["title"].lower().replace(" ", "_")
@@ -510,7 +508,11 @@ def generate_complete_report(
             # Insert after the first heading
             first_line_end = markdown_content.find("\n")
             if first_line_end > -1:
-                markdown_content = markdown_content[:first_line_end+1] + f"\n*{subtitle}*\n" + markdown_content[first_line_end+1:]
+                markdown_content = (
+                    markdown_content[: first_line_end + 1]
+                    + f"\n*{subtitle}*\n"
+                    + markdown_content[first_line_end + 1 :]
+                )
 
     # Add metadata section to markdown if provided
     if metadata:
