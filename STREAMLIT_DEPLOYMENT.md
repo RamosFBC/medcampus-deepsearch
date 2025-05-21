@@ -27,7 +27,7 @@ This section explains how to deploy the MedCampus application to Streamlit Commu
 The repository includes these essential files for deployment:
 
 1. `requirements.txt` - Lists all Python package dependencies
-2. `packages.txt` - Lists system dependencies (for WeasyPrint)
+2. `packages.txt` - Lists minimal system dependencies
 3. `.streamlit/config.toml` - Streamlit configuration
 4. `.streamlit/secrets.toml` - Secret variables (not included in repo; you'll add these in the Streamlit Cloud settings)
 
@@ -53,22 +53,20 @@ aluno = "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c"  # al
 
 ### Common Issues
 
-#### Missing System Libraries
+#### HTML Reports Instead of PDF
 
-If you encounter errors like this:
+The application now uses HTML reports instead of PDF generation to avoid dependency issues with libraries like WeasyPrint that require system libraries such as libpango. This approach has several benefits:
 
-```
-OSError: cannot load library 'libpango-1.0-0': libpango-1.0-0: cannot open shared object file: No such file or directory
-```
+1. More reliable deployment with fewer dependencies
+2. HTML reports can be easily converted to PDF using any web browser's print function
+3. HTML reports can be styled and customized more easily
+4. Avoids issues with missing system libraries on Streamlit Cloud
 
-This indicates that required system libraries for WeasyPrint (used for PDF generation) are missing. The `packages.txt` file should include all necessary system dependencies, but if you encounter this issue:
+Users can download the HTML report and convert it to PDF by:
 
-1. Check if the required libraries are correctly listed in `packages.txt`
-2. Ensure the following Pango-related libraries are included:
-   - libpango1.0-dev
-   - libpangocairo-1.0-0
-   - libpango-1.0-0
-   - libpangoft2-1.0-0
+1. Opening the HTML file in any web browser
+2. Using the browser's print function (Ctrl+P or Cmd+P)
+3. Selecting "Save as PDF" option
 
 #### Other Troubleshooting Steps
 
@@ -76,4 +74,3 @@ This indicates that required system libraries for WeasyPrint (used for PDF gener
 - Ensure all dependencies are correctly listed in requirements.txt
 - Make sure all system dependencies are listed in packages.txt
 - Verify that all necessary secrets are added in the Streamlit Cloud settings
-- If using WeasyPrint for PDF generation, ensure all font libraries are properly installed

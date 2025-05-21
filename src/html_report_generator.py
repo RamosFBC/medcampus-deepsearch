@@ -1,31 +1,17 @@
 """
-Enhanced PDF generator for medical residency reporting system.
-Uses WeasyPrint to generate high-quality PDFs with visualizations.
+HTML report generator for medical residency reporting system.
+Generates HTML reports as an alternative to PDF when WeasyPrint is unavailable.
 """
 
 import os
 import re
 from datetime import datetime
 import base64
-from io import BytesIO
-import tempfile
-from pathlib import Path
 import markdown
 from jinja2 import Environment, FileSystemLoader
 import streamlit as st
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import sys
-import importlib
-
-# Try to import WeasyPrint, but don't fail if it's not available
-WEASYPRINT_AVAILABLE = False
-try:
-    from weasyprint import HTML, CSS
-    WEASYPRINT_AVAILABLE = True
-except (ImportError, OSError) as e:
-    print(f"WeasyPrint not available: {e}")
-    # We'll handle this by using HTML reports as a fallback
 
 # Constants
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -192,19 +178,30 @@ blockquote {
     margin: 1em 0;
 }
 
-@page {
-    margin: 25mm 20mm;
-    @bottom-center {
-        content: "Página " counter(page) " de " counter(pages);
-        font-size: 10px;
-        color: #777;
+@media print {
+    body {
+        font-size: 12pt;
     }
-    @bottom-right {
-        content: "Gerado em: """
-    + datetime.now().strftime("%d/%m/%Y")
-    + """";
-        font-size: 10px;
-        color: #777;
+    
+    h1 {
+        font-size: 18pt;
+    }
+    
+    h2 {
+        font-size: 16pt;
+    }
+    
+    h3 {
+        font-size: 14pt;
+    }
+    
+    @page {
+        margin: 2cm;
+    }
+    
+    .footer {
+        position: fixed;
+        bottom: 0;
     }
 }
 """
@@ -219,6 +216,12 @@ BASE_TEMPLATE = """<!DOCTYPE html>
     <style>
         {{ css }}
     </style>
+    <script>
+        // Add print button functionality
+        function printReport() {
+            window.print();
+        }
+    </script>
 </head>
 <body>
     <div class="header">
@@ -227,6 +230,7 @@ BASE_TEMPLATE = """<!DOCTYPE html>
         </div>
         <div class="header-right">
             <p>Relatório gerado em: {{ date }}</p>
+            <button onclick="printReport()">Imprimir Relatório</button>
         </div>
     </div>
     
@@ -249,7 +253,7 @@ def fig_to_base64(fig):
         img_base64 = base64.b64encode(img_bytes).decode("utf-8")
         return f"data:image/png;base64,{img_base64}"
     except Exception as e:
-        # TEMPORARY FIX: Return a placeholder or dummy image if Kaleido fails
+        # Return a placeholder or dummy image if Kaleido fails
         print(f"Error converting figure to image: {e}")
         # Return a very small transparent PNG as fallback
         return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
@@ -302,6 +306,20 @@ def extract_charts_from_session():
             }
         )
 
+    # Default approach is to gather all figures from session_state
+    if "figures" in st.session_state and isinstance(st.session_state.figures, dict):
+        for key, fig in st.session_state.figures.items():
+            if fig:
+                # Create a descriptive title from the key
+                title_text = key.replace("_", " ").title()
+                charts.append(
+                    {
+                        "title": title_text,
+                        "figure": fig,
+                        "description": f"{title_text}",
+                    }
+                )
+
     return charts
 
 
@@ -309,7 +327,7 @@ def generate_chart_html(charts):
     """Generate HTML for charts."""
     chart_html = ""
 
-    # TEMPORARY FIX: Return empty string if charts list is empty
+    # Return empty string if charts list is empty
     if not charts:
         return chart_html
 
@@ -352,17 +370,17 @@ def convert_markdown_to_html(markdown_content):
     return html_content
 
 
-def generate_pdf_from_markdown(markdown_content, title=None, charts=None):
+def generate_html_report(markdown_content, title=None, charts=None):
     """
-    Generate a PDF from markdown content with embedded charts.
+    Generate an HTML report from markdown content with embedded charts.
 
     Args:
         markdown_content (str): The markdown content as a string
-        title (str, optional): The title for the PDF
+        title (str, optional): The title for the report
         charts (list, optional): List of chart objects with title, figure and description
 
     Returns:
-        str: Path to the generated PDF file
+        str: Path to the generated HTML file
     """
     # Extract title from markdown if not provided
     if not title:
@@ -377,7 +395,7 @@ def generate_pdf_from_markdown(markdown_content, title=None, charts=None):
 
     # Create a clean filename from the title
     filename = re.sub(r"[^\w\-_]", "_", title)
-    output_path = os.path.join(PDF_DIR, f"{filename}.pdf")
+    html_path = os.path.join(PDF_DIR, f"{filename}.html")
 
     # Convert markdown to HTML
     html_content = convert_markdown_to_html(markdown_content)
@@ -418,33 +436,17 @@ def generate_pdf_from_markdown(markdown_content, title=None, charts=None):
     # Render template
     template = env.get_template("base.html")
     rendered_html = template.render(**template_data)
-
-    # Create PDF using WeasyPrint with fallback
-    try:
-        html = HTML(string=rendered_html)
-        css = CSS(string=DEFAULT_CSS)
-
-        # Generate PDF
-        html.write_pdf(output_path, stylesheets=[css])
-
-        return output_path
-    except Exception as e:
-        # Log the error
-        print(f"Error generating PDF with WeasyPrint: {e}")
-        st.error(f"Error generating PDF: {e}")
-
-        # Fallback: Save HTML file instead
-        html_path = os.path.join(PDF_DIR, f"{filename}.html")
-        with open(html_path, "w", encoding="utf-8") as f:
-            f.write(rendered_html)
-
-        print(f"Fallback: HTML saved to {html_path}")
-        return html_path
+    
+    # Save HTML file
+    with open(html_path, "w", encoding="utf-8") as f:
+        f.write(rendered_html)
+    
+    return html_path
 
 
 def convert_streamlit_fig_to_chart_object(fig, title, description):
     """
-    Convert a Streamlit-rendered figure to a chart object for PDF generation.
+    Convert a Streamlit-rendered figure to a chart object for report generation.
 
     Args:
         fig (plotly.graph_objects.Figure): The plotly figure object
@@ -459,31 +461,35 @@ def convert_streamlit_fig_to_chart_object(fig, title, description):
 
 def save_charts_to_session_state(chart_objects):
     """
-    Save chart objects to session state for later use in PDF generation.
+    Save chart objects to session state for later use in report generation.
 
     Args:
         chart_objects (list): List of chart objects from convert_streamlit_fig_to_chart_object
     """
-    for i, chart in enumerate(chart_objects):
-        key_name = f"chart_{i}"
-        st.session_state[key_name] = chart
+    if "figures" not in st.session_state:
+        st.session_state.figures = {}
+    
+    for chart in chart_objects:
+        if "title" in chart and chart["title"]:
+            key_name = chart["title"].lower().replace(" ", "_")
+            st.session_state.figures[key_name] = chart["figure"]
 
 
-def generate_complete_pdf(
+def generate_complete_report(
     markdown_content, figures=None, title=None, subtitle=None, metadata=None
 ):
     """
-    Generate a complete PDF report with markdown content, charts, and metadata.
+    Generate a complete HTML report with markdown content, charts, and metadata.
 
     Args:
         markdown_content (str): The markdown content as a string
         figures (dict): Dictionary of Plotly figures to include
-        title (str, optional): The title for the PDF
-        subtitle (str, optional): The subtitle for the PDF
+        title (str, optional): The title for the report
+        subtitle (str, optional): The subtitle for the report
         metadata (dict, optional): Additional metadata to include in the report
 
     Returns:
-        str: Path to the generated PDF file
+        str: Path to the generated HTML file
     """
     # Create PDF directory if it doesn't exist
     os.makedirs(PDF_DIR, exist_ok=True)
@@ -496,9 +502,15 @@ def generate_complete_pdf(
         else:
             title = "Relatório MedCampus"
 
-    # Generate a filename based on the title
-    filename = re.sub(r"[^\w\-_]", "_", title)
-    output_path = os.path.join(PDF_DIR, f"{filename}.pdf")
+    # Add subtitle if provided
+    if subtitle:
+        if not markdown_content.startswith("#"):
+            markdown_content = f"# {title}\n\n{subtitle}\n\n{markdown_content}"
+        else:
+            # Insert after the first heading
+            first_line_end = markdown_content.find("\n")
+            if first_line_end > -1:
+                markdown_content = markdown_content[:first_line_end+1] + f"\n*{subtitle}*\n" + markdown_content[first_line_end+1:]
 
     # Add metadata section to markdown if provided
     if metadata:
@@ -523,124 +535,10 @@ def generate_complete_pdf(
                     }
                 )
 
-    # Generate PDF with charts
-    return generate_pdf_from_markdown(markdown_content, title=title, charts=charts)
+    # Generate HTML report with charts
+    return generate_html_report(markdown_content, title=title, charts=charts)
 
 
-def test_pdf_generation():
-    """Test PDF generation with sample data."""
-    markdown_content = """
-# Relatório de Análise: Cardiologia
-
-## Introdução
-
-Este relatório apresenta uma análise detalhada sobre a especialidade médica de Cardiologia no Brasil, com foco na evolução do número de vagas de residência médica e na distribuição de especialistas pelo território nacional.
-
-## Evolução das Vagas de Residência Médica
-
-A especialidade de Cardiologia tem apresentado crescimento consistente no número de vagas de residência médica ao longo dos anos. Entre 2018 e 2024, observou-se um aumento significativo na oferta de vagas, especialmente nas regiões Sudeste e Sul do país.
-
-## Distribuição de Especialistas
-
-A distribuição de especialistas em Cardiologia pelo Brasil apresenta concentração significativa nos grandes centros urbanos, principalmente nas capitais e cidades com mais de 300 mil habitantes.
-
-## Comparativo com Especialidades Relacionadas
-
-Em comparação com outras especialidades da área clínica, a Cardiologia se destaca pelo número expressivo de especialistas e pela ampla oferta de programas de residência médica.
-
-## Conclusões
-
-A análise permite concluir que a Cardiologia é uma especialidade em expansão no Brasil, com tendência de crescimento no número de vagas de residência médica e de especialistas formados anualmente.
-"""
-
-    # Create sample chart objects
-    fig1 = go.Figure()
-    fig1.add_trace(
-        go.Bar(
-            x=["2018", "2019", "2020", "2021", "2022", "2023", "2024"],
-            y=[150, 165, 180, 195, 210, 230, 250],
-            name="Vagas",
-        )
-    )
-    fig1.update_layout(title="Evolução de Vagas R1 em Cardiologia")
-
-    # Create comparison chart
-    fig2 = go.Figure()
-    fig2.add_trace(
-        go.Bar(
-            x=[
-                "Cardiologia",
-                "Clínica Médica",
-                "Endocrinologia",
-                "Nefrologia",
-                "Pneumologia",
-            ],
-            y=[250, 350, 120, 80, 90],
-            name="Vagas",
-        )
-    )
-    fig2.update_layout(title="Vagas por Especialidade")
-
-    # Create distribution chart
-    fig3 = make_subplots(
-        rows=1,
-        cols=2,
-        specs=[[{"type": "domain"}, {"type": "domain"}]],
-        subplot_titles=("Distribuição por Região", "Distribuição por Área"),
-    )
-
-    # Add pie charts
-    fig3.add_trace(
-        go.Pie(
-            labels=["Sudeste", "Sul", "Nordeste", "Norte", "Centro-Oeste"],
-            values=[55, 18, 15, 6, 6],
-        ),
-        row=1,
-        col=1,
-    )
-
-    fig3.add_trace(
-        go.Pie(
-            labels=[
-                "Capital",
-                "Interior > 300k",
-                "Interior 100k-300k",
-                "Interior < 100k",
-            ],
-            values=[45, 30, 15, 10],
-        ),
-        row=1,
-        col=2,
-    )
-
-    fig3.update_layout(title="Distribuição de Especialistas")
-
-    # Create chart objects
-    charts = [
-        {
-            "title": "Evolução de Vagas de R1 em Cardiologia",
-            "figure": fig1,
-            "description": "Gráfico mostrando a evolução do número de vagas de R1 ao longo dos anos.",
-        },
-        {
-            "title": "Comparação com Especialidades Relacionadas",
-            "figure": fig2,
-            "description": "Comparação do número de vagas com especialidades relacionadas.",
-        },
-        {
-            "title": "Distribuição de Especialistas em Cardiologia",
-            "figure": fig3,
-            "description": "Distribuição geográfica e demográfica de especialistas em Cardiologia.",
-        },
-    ]
-
-    # Generate PDF
-    output_path = generate_pdf_from_markdown(
-        markdown_content, title="Análise de Cardiologia", charts=charts
-    )
-    print(f"PDF generated: {output_path}")
-    return output_path
-
-
-if __name__ == "__main__":
-    test_pdf_generation()
+# For backwards compatibility with the original pdf_generator.py
+generate_pdf_from_markdown = generate_html_report
+generate_complete_pdf = generate_complete_report

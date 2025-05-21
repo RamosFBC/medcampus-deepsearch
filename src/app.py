@@ -7,7 +7,9 @@ import hashlib
 from datetime import datetime
 
 from open_deep_research.multi_agent import graph
-from pdf_generator import generate_complete_pdf
+
+# TEMPORARY FIX: Use HTML report generator instead of PDF generator
+# from pdf_generator import generate_complete_pdf
 from inputs import input_prompt
 from plot import create_specialty_growth_chart, create_specialties_comparison_chart
 from plot_specialists import create_specialist_visualization
@@ -358,13 +360,14 @@ if st.session_state["authenticated"]:
 
         # All charts are now stored directly in session_state.figures from our updated visualization functions
 
-        # Generate PDF with charts
-        from pdf_generator import generate_complete_pdf
+        # Use HTML report generator instead of PDF generator to avoid libpango issues
+        # TEMPORARY FIX: Use html_report_generator instead of pdf_generator
+        from html_report_generator import generate_complete_report
 
         # Prepare figures dictionary from session_state
         figures = st.session_state.figures if "figures" in st.session_state else {}
 
-        # Generate the PDF from the final report with metadata
+        # Generate the HTML report from the final report with metadata
         metadata = {
             "Especialidade": st.session_state.report_info["especialidade"],
             "Região": st.session_state.report_info["local"],
@@ -372,10 +375,10 @@ if st.session_state["authenticated"]:
             "Fonte de Dados": "MedCampus - Sistema de Análise de Residência Médica",
         }
 
-        # Generate PDF with enhanced styling
+        # Generate HTML report with enhanced styling
         subtitle = f"Análise da Residência Médica em {st.session_state.report_info['especialidade']}"
         try:
-            pdf_path = generate_complete_pdf(
+            report_path = generate_complete_report(
                 markdown_content=final_report,
                 figures=figures,
                 title=report_title,
@@ -383,30 +386,24 @@ if st.session_state["authenticated"]:
                 metadata=metadata,
             )
 
-            # Check if the generated file is PDF or HTML (fallback)
-            file_ext = os.path.splitext(pdf_path)[1].lower()
-
-            # Provide a download link for the file
-            with open(pdf_path, "rb") as file:
-                mime_type = "application/pdf" if file_ext == ".pdf" else "text/html"
-                download_label = (
-                    "Baixar PDF do Relatório"
-                    if file_ext == ".pdf"
-                    else "Baixar HTML do Relatório"
-                )
-
+            # Provide a download link for the HTML report
+            with open(report_path, "rb") as file:
                 btn = st.download_button(
-                    label=download_label,
+                    label="Baixar Relatório HTML",
                     data=file,
-                    file_name=os.path.basename(pdf_path),
-                    mime=mime_type,
+                    file_name=os.path.basename(report_path),
+                    mime="text/html",
                 )
 
-            # If using HTML fallback, show a notice to the user
-            if file_ext != ".pdf":
-                st.warning(
-                    "Não foi possível gerar um PDF devido a limitações do servidor. Um arquivo HTML foi gerado no lugar."
-                )
+            # Show HTML report usage information
+            st.info(
+                """
+                **Dica**: O relatório HTML pode ser aberto em qualquer navegador e impresso como PDF.
+                1. Abra o arquivo HTML baixado
+                2. Use a função de impressão do navegador (Ctrl+P ou Cmd+P)
+                3. Selecione "Salvar como PDF"
+                """
+            )
 
         except Exception as e:
             st.error(f"Erro ao gerar o relatório: {str(e)}")
